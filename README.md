@@ -1,2 +1,2 @@
 # intel-ideathon-project
-its soemthing i made for my ideathon
+its something i made for my ideathon
