@@ -1,0 +1,2435 @@
+<!DOCTYPE html>
+<html lang="en"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwMTQxMzYzODU2MzAxMTYwMTY1OSIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzIwOGRjYzYwN2FmZDc1Mzhfc3BhY2V3YXJfdmlydXNfcHJvdG9jb2wuaHRtbC03ODAifSwiZXhwIjoxNzk1Nzc4MTgzLCJpYXQiOjE3OTU3NzQ1ODMsImFsZyI6IlJTMjU2In0.XMDMSVqYXURIn9wCiRPtENCHzfmRHhK5BGV6cngypgoBtpMIbjV3c83GY0J8p9reKJK0bqyXRGWez39oBHO_qRJYf7ELnhiK1y7KG49-sd2U09wwkYzFuJc8pEkzcMHDRlqhwOCeYUHK_FAVH76w1Kb7il5Gkd0n-CVQJAfo4frwiZSUnson_nixUJirVojO7YMt_bo4rlEcMG7Pgftv5fuDESTtjMsLNSlSe8XjQVhOepm54zeuqRjW-Zsb-cBKBKvxQkCZEZlUl8ew9pgypcy5z0F-PIEVihCK3sjqht3O4RtTrTRa-JdQR8p2FSrhbhgbWhOmfCExcPr3uQzRWw","c_208dcc607afd7538_spacewar_virus_protocol.html-780")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.i=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.extensions="";var l=0,t=null,r=null,q=[],F=new TextEncoder,
+G=new TextDecoder;c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*
+16|0;return(f==="x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;
+(g=t)==null||g.postMessage(a)}};Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  const OVERLAY_SELECTOR =
+    'dialog[open], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="combobox"]';
+
+  function isVisibleOverlay(element) {
+    if (element.closest('[hidden], [aria-hidden="true"], [inert]')) {
+      return false;
+    }
+    if (window.getComputedStyle(element).visibility === 'hidden') {
+      return false;
+    }
+    for (let cur = element; cur; cur = cur.parentElement) {
+      if (window.getComputedStyle(cur).display === 'none') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function hasOpenOverlay() {
+    const candidates = document.querySelectorAll(OVERLAY_SELECTOR);
+    for (let i = 0; i < candidates.length; i++) {
+      if (isVisibleOverlay(candidates[i])) {
+        return true;
+      }
+    }
+    try {
+      if (document.querySelector('[popover]:popover-open')) {
+        return true;
+      }
+    } catch (e) {
+      // Ignore engines that do not support :popover-open.
+    }
+    return false;
+  }
+
+  function isNonEmptySearchInput(target) {
+    return (
+      Boolean(target) &&
+      target.tagName === 'INPUT' &&
+      typeof target.type === 'string' &&
+      target.type.toLowerCase() === 'search' &&
+      typeof target.value === 'string' &&
+      target.value.length > 0
+    );
+  }
+
+  function shouldIgnoreEscape(event) {
+    return (
+      event.key !== 'Escape' ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.isComposing ||
+      event.repeat ||
+      event.keyCode === 229 ||
+      isNonEmptySearchInput(event.target)
+    );
+  }
+
+  let shouldIgnoreCaptureState = false;
+
+  window.addEventListener(
+    'keydown',
+    function(event) {
+      if (event.key === 'Escape') {
+        shouldIgnoreCaptureState =
+          hasOpenOverlay() || isNonEmptySearchInput(event.target);
+      }
+    },
+    {capture: true},
+  );
+
+  window.addEventListener('keydown', function(event) {
+    if (
+      shouldIgnoreEscape(event) ||
+      event.defaultPrevented ||
+      shouldIgnoreCaptureState
+    ) {
+      return;
+    }
+    const wasBlockedOnCapture = shouldIgnoreCaptureState;
+    queueMicrotask(function() {
+      if (event.defaultPrevented || wasBlockedOnCapture) {
+        return;
+      }
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({'type': 'escapeKey'}, '*');
+      }
+    });
+  });
+})();</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SPACEWAR // VIRUS PROTOCOL</title>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  html, body {
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+    color: #ffffff;
+    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden;
+  }
+  #gameCanvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000000;
+  }
+  /* Subtle CRT Scanline aesthetic */
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(
+      rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.25) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 15;
+  }
+  #hud {
+    position: fixed;
+    top: 14px;
+    left: 18px;
+    right: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    pointer-events: none;
+    z-index: 20;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .hud-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .hud-pill {
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.85);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+  }
+  .hud-btn {
+    pointer-events: auto;
+    cursor: pointer;
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    padding: 6px 12px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.25);
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  }
+  .hud-btn:hover {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 0 18px #ffffff;
+  }
+  #controls-hint {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    letter-spacing: 1.8px;
+    color: rgba(255, 255, 255, 0.7);
+    pointer-events: none;
+    z-index: 20;
+    text-align: center;
+    width: 95%;
+  }
+  .overlay-screen {
+    position: fixed;
+    inset: 0;
+    background: #000000;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 40;
+    padding: 32px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.85s ease-in-out;
+  }
+  .overlay-screen.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .title-main {
+    font-size: clamp(28px, 5vw, 58px);
+    letter-spacing: 6px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 18px #ffffff, 0 0 36px rgba(255, 255, 255, 0.45);
+  }
+  .subtitle {
+    font-size: clamp(14px, 2vw, 18px);
+    letter-spacing: 2px;
+    max-width: 760px;
+    line-height: 1.75;
+    color: #e5e5e5;
+    margin-bottom: 36px;
+  }
+  .btn-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .retro-btn {
+    background: #000000;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    padding: 15px 36px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(16px, 2vw, 20px);
+    font-weight: bold;
+    letter-spacing: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.35);
+    transition: background 0.15s, color 0.15s, transform 0.1s, box-shadow 0.15s;
+  }
+  .retro-btn:hover {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 0 28px #ffffff;
+    transform: scale(1.04);
+  }
+  .retro-btn:active {
+    transform: scale(0.98);
+  }
+  #stageBanner {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    z-index: 25;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    background: rgba(0, 0, 0, 0.45);
+  }
+  #stageBanner.visible {
+    opacity: 1;
+  }
+  #stageBannerTitle {
+    font-size: clamp(30px, 4.8vw, 56px);
+    font-weight: bold;
+    letter-spacing: 6px;
+    text-shadow: 0 0 20px #ffffff;
+    margin-bottom: 16px;
+  }
+  #stageBannerStart {
+    font-size: clamp(22px, 3.4vw, 40px);
+    font-weight: bold;
+    letter-spacing: 8px;
+    text-shadow: 0 0 16px #ffffff;
+    animation: pulseText 0.75s infinite alternate;
+  }
+  @keyframes pulseText {
+    from { opacity: 0.4; }
+    to { opacity: 1; }
+  }
+  #intelHeader {
+    font-size: clamp(22px, 3.8vw, 44px);
+    font-weight: bold;
+    letter-spacing: 4px;
+    margin-bottom: 26px;
+    text-shadow: 0 0 20px #ffffff;
+  }
+  #intelPrompt {
+    font-size: clamp(16px, 2.3vw, 24px);
+    max-width: 800px;
+    line-height: 1.75;
+    margin-bottom: 42px;
+    letter-spacing: 1.5px;
+  }
+  #victoryText1 {
+    font-size: clamp(28px, 4.6vw, 54px);
+    font-weight: bold;
+    letter-spacing: 4px;
+    line-height: 1.65;
+    text-shadow: 0 0 24px #ffffff, 0 0 48px rgba(255, 255, 255, 0.4);
+  }
+  #victoryText2 {
+    font-size: clamp(36px, 6.4vw, 86px);
+    font-weight: bold;
+    letter-spacing: 6px;
+    line-height: 1.25;
+    text-transform: uppercase;
+    text-shadow: 0 0 32px #ffffff, 0 0 68px rgba(255, 255, 255, 0.75);
+  }
+  /* Mobile Touch Controls */
+  #mobileControls {
+    position: fixed;
+    bottom: 24px;
+    left: 20px;
+    right: 20px;
+    display: none;
+    justify-content: space-between;
+    align-items: flex-end;
+    z-index: 22;
+    pointer-events: none;
+  }
+  @media (pointer: coarse) {
+    #mobileControls {
+      display: flex;
+    }
+    #controls-hint {
+      display: none;
+    }
+  }
+  #joyZone {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.06);
+    position: relative;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #joyKnob {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 14px #ffffff;
+  }
+  #touchFireBtn {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 2px;
+    pointer-events: auto;
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.35);
+  }
+  #touchFireBtn:active {
+    background: #ffffff;
+    color: #000000;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="948" height="828"></canvas>
+<div class="scanlines"></div>
+
+<div id="hud">
+  <div class="hud-group">
+    <div class="hud-pill" id="hudStage">STAGE 1: MELISSA</div>
+    <div class="hud-pill" id="hudDeaths">DEATHS: 0</div>
+  </div>
+  <div class="hud-group">
+    <div class="hud-pill" id="hudAiStatus">INTEL AI: STANDBY</div>
+    <div class="hud-pill" id="hudBossHp">VIRUS INTEGRITY: 100%</div>
+    <button id="muteBtn" class="hud-btn">[M] AUDIO: ON</button>
+    <button id="hudExportBtn" class="hud-btn" title="Download Standalone HTML Executable">EXPORT .HTML</button>
+  </div>
+</div>
+
+<div id="controls-hint">
+  [W A S D] MOVE &nbsp;|&nbsp; [SPACEBAR] FIRE (LOCKED ON VIRUS) &nbsp;|&nbsp; WHITE BULLETS NULLIFY NEON-RED DATA &nbsp;|&nbsp; DODGE DARK-CORE ORBS
+</div>
+
+<div id="stageBanner">
+  <div id="stageBannerTitle">STAGE 1 Melissa</div>
+  <div id="stageBannerStart">START</div>
+</div>
+
+<!-- Title / Main Menu Screen -->
+<div id="titleScreen" class="overlay-screen active">
+  <div class="title-main">SPACEWAR // VIRUS PROTOCOL</div>
+  <div class="subtitle">
+    PURGE FIVE SYSTEM-LEVEL MALWARE ENTITIES.<br>
+    USE <strong>WASD</strong> TO MANEUVER • HOLD <strong>SPACEBAR</strong> TO FIRE.<br>
+    NULLIFY NEON-RED ATTACKS • EVADE INDESTRUCTIBLE DARK-CORE ORBS.
+  </div>
+  <div class="btn-row">
+    <button id="startBtn" class="retro-btn">INITIATE PROTOCOL</button>
+    <button id="titleExportBtn" class="retro-btn">DOWNLOAD .HTML</button>
+  </div>
+</div>
+
+<!-- Intel AI Assistance Screen (Appears on 3rd death and every death after) -->
+<div id="intelScreen" class="overlay-screen">
+  <div id="intelHeader">*****INTEL AI ASISTANCE*****</div>
+  <div id="intelPrompt">"The trials ahead are formidable, Traveler. Shall I allocate processing power to aid your quest?"</div>
+  <div class="btn-row">
+    <button id="intelYesBtn" class="retro-btn">YES</button>
+    <button id="intelNoBtn" class="retro-btn">NO</button>
+  </div>
+</div>
+
+<!-- Victory Phase 1 Screen -->
+<div id="victoryScreen1" class="overlay-screen">
+  <div id="victoryText1">INTEL AI IS HERE,<br>MAY THE VIRUSES FEAR!!</div>
+</div>
+
+<!-- Victory Phase 2 Final Screen -->
+<div id="victoryScreen2" class="overlay-screen">
+  <div id="victoryText2">GO BUY YOUR INTEL AI PC TODAY!!</div>
+  <div class="btn-row" style="margin-top: 48px;">
+    <button id="replayBtn" class="retro-btn">REBOOT SYSTEM</button>
+    <button id="victoryExportBtn" class="retro-btn">DOWNLOAD GAME (.HTML)</button>
+  </div>
+</div>
+
+<!-- Mobile Touch Controls -->
+<div id="mobileControls">
+  <div id="joyZone"><div id="joyKnob"></div></div>
+  <button id="touchFireBtn">FIRE</button>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // UI References
+  const hudStage = document.getElementById('hudStage');
+  const hudDeaths = document.getElementById('hudDeaths');
+  const hudAiStatus = document.getElementById('hudAiStatus');
+  const hudBossHp = document.getElementById('hudBossHp');
+  const muteBtn = document.getElementById('muteBtn');
+  const hudExportBtn = document.getElementById('hudExportBtn');
+  const titleExportBtn = document.getElementById('titleExportBtn');
+  const victoryExportBtn = document.getElementById('victoryExportBtn');
+
+  const stageBanner = document.getElementById('stageBanner');
+  const stageBannerTitle = document.getElementById('stageBannerTitle');
+  const titleScreen = document.getElementById('titleScreen');
+  const intelScreen = document.getElementById('intelScreen');
+  const victoryScreen1 = document.getElementById('victoryScreen1');
+  const victoryScreen2 = document.getElementById('victoryScreen2');
+
+  const startBtn = document.getElementById('startBtn');
+  const intelYesBtn = document.getElementById('intelYesBtn');
+  const intelNoBtn = document.getElementById('intelNoBtn');
+  const replayBtn = document.getElementById('replayBtn');
+
+  let W = canvas.width = window.innerWidth;
+  let H = canvas.height = window.innerHeight;
+
+  window.addEventListener('resize', () => {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  });
+
+  // =========================================================================
+  // 1. STANDALONE EXECUTABLE HTML EXPORTER
+  // =========================================================================
+  function downloadExecutableHtml() {
+    // Capture clean pristine HTML state for standalone offline execution
+    const cloneDoc = document.documentElement.cloneNode(true);
+    const cTitle = cloneDoc.querySelector('#titleScreen');
+    const cIntel = cloneDoc.querySelector('#intelScreen');
+    const cVic1 = cloneDoc.querySelector('#victoryScreen1');
+    const cVic2 = cloneDoc.querySelector('#victoryScreen2');
+    const cBanner = cloneDoc.querySelector('#stageBanner');
+
+    if (cTitle) cTitle.classList.add('active');
+    if (cIntel) cIntel.classList.remove('active');
+    if (cVic1) cVic1.classList.remove('active');
+    if (cVic2) cVic2.classList.remove('active');
+    if (cBanner) cBanner.classList.remove('visible');
+
+    const htmlContent = '<!DOCTYPE html>\n' + cloneDoc.outerHTML;
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'spacewar_virus_protocol.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+
+  hudExportBtn.addEventListener('click', downloadExecutableHtml);
+  titleExportBtn.addEventListener('click', downloadExecutableHtml);
+  victoryExportBtn.addEventListener('click', downloadExecutableHtml);
+
+  // =========================================================================
+  // 2. WEB AUDIO API RETRO CHIPTUNE MUSIC & SFX SYNTHESIZER
+  // =========================================================================
+  class RetroAudioEngine {
+    constructor() {
+      this.ctx = null;
+      this.muted = false;
+      this.currentTrack = 'NONE'; // 'MENU' | 'BATTLE' | 'INTEL_HEROIC' | 'NONE'
+      this.stepIndex = 0;
+      this.schedulerTimer = null;
+      this.lastLaserTime = 0;
+      this.lastNullifyTime = 0;
+
+      // Musical Note Frequencies (Hz)
+      this.N = {
+        A1: 55.00, C2: 65.41, D2: 73.42, E2: 82.41, F2: 87.31, G2: 98.00, A2: 110.00, B2: 123.47,
+        C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196.00, A3: 220.00, B3: 246.94,
+        C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88,
+        C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880.00, B5: 987.77,
+        C6: 1046.50, _: 0
+      };
+    }
+
+    init() {
+      if (!this.ctx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioCtx();
+      }
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+    }
+
+    toggleMute() {
+      this.muted = !this.muted;
+      muteBtn.textContent = `[M] AUDIO: ${this.muted ? 'OFF' : 'ON'}`;
+      if (this.muted) {
+        this.stopMusicLoop();
+      } else if (this.currentTrack !== 'NONE') {
+        const trackToResume = this.currentTrack;
+        this.currentTrack = 'NONE';
+        this.setMusicTrack(trackToResume);
+      }
+    }
+
+    playTone(freq, duration, type = 'square', volume = 0.06, delay = 0, slideTo = null) {
+      if (this.muted || !this.ctx || !freq) return;
+      try {
+        const now = this.ctx.currentTime + delay;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (slideTo) {
+          osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
+        }
+
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(volume, now + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      } catch (e) {}
+    }
+
+    stopMusicLoop() {
+      if (this.schedulerTimer) {
+        clearInterval(this.schedulerTimer);
+        this.schedulerTimer = null;
+      }
+    }
+
+    setMusicTrack(trackName) {
+      if (this.currentTrack === trackName && this.schedulerTimer) return;
+      this.currentTrack = trackName;
+      this.stopMusicLoop();
+      this.stepIndex = 0;
+
+      if (this.muted || trackName === 'NONE') return;
+      this.init();
+
+      const N = this.N;
+
+      if (trackName === 'MENU') {
+        // 1. Atmospheric Retro Synth Arpeggio Theme (General Interface / Title)
+        const arpLead = [
+          N.A3, N.C4, N.E4, N.A4, N.G4, N.E4, N.C4, N.E4,
+          N.F3, N.A3, N.C4, N.F4, N.E4, N.C4, N.A3, N.C4,
+          N.D3, N.F3, N.A3, N.D4, N.C4, N.A3, N.F3, N.A3,
+          N.E3, N.G3, N.B3, N.E4, N.D4, N.B3, N.G3, N.E3
+        ];
+        const bassLine = [
+          N.A1, N._, N._, N._, N.A1, N._, N._, N._,
+          N.F2, N._, N._, N._, N.F2, N._, N._, N._,
+          N.D2, N._, N._, N._, N.D2, N._, N._, N._,
+          N.E2, N._, N._, N._, N.E2, N._, N._, N._
+        ];
+
+        this.schedulerTimer = setInterval(() => {
+          if (this.muted || this.currentTrack !== 'MENU') return;
+          const idx = this.stepIndex % arpLead.length;
+          this.playTone(arpLead[idx], 0.19, 'triangle', 0.055);
+          if (bassLine[idx]) {
+            this.playTone(bassLine[idx], 0.36, 'sawtooth', 0.045);
+          }
+          this.stepIndex++;
+        }, 185);
+
+      } else if (trackName === 'BATTLE') {
+        // 2. Driving, Energetic Retro Arcade Synth Bassline & Lead Melody (Active Gameplay)
+        const leadMelody = [
+          N.E4, N._, N.E4, N.G4, N.A4, N._, N.G4, N.E4,
+          N.D4, N._, N.D4, N.F4, N.G4, N._, N.F4, N.D4,
+          N.C4, N._, N.E4, N.G4, N.A4, N.B4, N.C5, N.B4,
+          N.A4, N.G4, N.E4, N.G4, N.B4, N._, N.G4, N._
+        ];
+        const drivingBass = [
+          N.E2, N.E3, N.E2, N.E3, N.E2, N.E3, N.E2, N.E3,
+          N.D2, N.D3, N.D2, N.D3, N.D2, N.D3, N.D2, N.D3,
+          N.C2, N.C3, N.C2, N.C3, N.C2, N.C3, N.C2, N.C3,
+          N.B1 || 61.74, N.B2, N.B1 || 61.74, N.B2, N.E2, N.E3, N.G2, N.B2
+        ];
+
+        this.schedulerTimer = setInterval(() => {
+          if (this.muted || this.currentTrack !== 'BATTLE') return;
+          const idx = this.stepIndex % leadMelody.length;
+          // Extra intensity when firing Spacebar
+          const firingBoost = (keys['Space'] || touchFiring) ? 1.25 : 1.0;
+          if (leadMelody[idx]) {
+            this.playTone(leadMelody[idx], 0.13, 'square', 0.042 * firingBoost);
+          }
+          if (drivingBass[idx]) {
+            this.playTone(drivingBass[idx], 0.12, 'triangle', 0.068);
+          }
+          this.stepIndex++;
+        }, 135);
+
+      } else if (trackName === 'INTEL_HEROIC') {
+        // 5. Cool, Heroic Retro Synthwave / Chiptune Anthem (Intel AI Screen & Final Victory)
+        const heroicLead = [
+          N.C4, N.E4, N.G4, N.C5, N._, N.B4, N.G4, N.E4,
+          N.A4, N._, N.G4, N.E4, N.D4, N._, N.E4, N.G4,
+          N.F4, N.A4, N.C5, N.F5, N._, N.E5, N.C5, N.A4,
+          N.G4, N._, N.A4, N.B4, N.C5, N._, N.G5, N._
+        ];
+        const heroicBass = [
+          N.C2, N.C3, N.G2, N.C3, N.C2, N.C3, N.G2, N.C3,
+          N.A1, N.A2, N.E2, N.A2, N.A1, N.A2, N.E2, N.A2,
+          N.F2, N.F3, N.C3, N.F3, N.F2, N.F3, N.C3, N.F3,
+          N.G2, N.G3, N.D3, N.G3, N.G2, N.B2, N.D3, N.G3
+        ];
+
+        this.schedulerTimer = setInterval(() => {
+          if (this.muted || this.currentTrack !== 'INTEL_HEROIC') return;
+          const idx = this.stepIndex % heroicLead.length;
+          if (heroicLead[idx]) {
+            this.playTone(heroicLead[idx], 0.22, 'square', 0.052);
+            this.playTone(heroicLead[idx] * 0.5, 0.22, 'triangle', 0.04);
+          }
+          if (heroicBass[idx]) {
+            this.playTone(heroicBass[idx], 0.16, 'sawtooth', 0.045);
+          }
+          this.stepIndex++;
+        }, 165);
+      }
+    }
+
+    // 3. Upbeat Celebratory Retro Fanfare Jingle (Enemy Defeated / Stage Clear)
+    playStageClearJingle() {
+      this.stopMusicLoop();
+      this.currentTrack = 'NONE';
+      if (this.muted) return;
+      this.init();
+
+      const N = this.N;
+      const notes = [
+        { f: N.C4, t: 0.00, d: 0.11 },
+        { f: N.E4, t: 0.11, d: 0.11 },
+        { f: N.G4, t: 0.22, d: 0.11 },
+        { f: N.C5, t: 0.33, d: 0.18 },
+        { f: N.G4, t: 0.52, d: 0.12 },
+        { f: N.C5, t: 0.65, d: 0.42 }
+      ];
+      notes.forEach(n => {
+        this.playTone(n.f, n.d, 'square', 0.08, n.t);
+        this.playTone(n.f * 0.5, n.d, 'triangle', 0.07, n.t);
+      });
+    }
+
+    // 4. Downbeat Descending Retro Defeat Jingle (Player Defeated / Death)
+    playDefeatJingle() {
+      this.stopMusicLoop();
+      this.currentTrack = 'NONE';
+      if (this.muted) return;
+      this.init();
+
+      const N = this.N;
+      const notes = [
+        { f: N.E4, t: 0.00, d: 0.18 },
+        { f: N.D4, t: 0.19, d: 0.18 },
+        { f: N.C4, t: 0.38, d: 0.20 },
+        { f: N.B3, t: 0.59, d: 0.22 },
+        { f: N.A3, t: 0.82, d: 0.55 }
+      ];
+      notes.forEach(n => {
+        this.playTone(n.f, n.d, 'sawtooth', 0.065, n.t);
+        this.playTone(n.f * 0.5, n.d, 'triangle', 0.07, n.t);
+      });
+    }
+
+    // Pop SFX when player bullets are released
+    playPop() {
+      if (this.muted || !this.ctx) return;
+      this.playTone(580, 0.06, 'sine', 0.14, 0, 145);
+    }
+
+    // Laser SFX when enemy takes damage
+    playLaserHit() {
+      if (this.muted || !this.ctx) return;
+      const now = this.ctx.currentTime;
+      if (now - this.lastLaserTime < 0.042) return;
+      this.lastLaserTime = now;
+      this.playTone(1240, 0.085, 'sawtooth', 0.095, 0, 240);
+    }
+
+    // Crisp tick when player bullet nullifies a neon-red enemy bullet
+    playNullify() {
+      if (this.muted || !this.ctx) return;
+      const now = this.ctx.currentTime;
+      if (now - this.lastNullifyTime < 0.03) return;
+      this.lastNullifyTime = now;
+      this.playTone(880, 0.04, 'triangle', 0.06, 0, 420);
+    }
+
+    // Retro noise explosion
+    playExplosion(big = false) {
+      if (this.muted || !this.ctx) return;
+      try {
+        const now = this.ctx.currentTime;
+        const duration = big ? 0.55 : 0.22;
+        const bufferSize = Math.floor(this.ctx.sampleRate * duration);
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 1.6);
+        }
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(big ? 540 : 780, now);
+        filter.frequency.exponentialRampToValueAtTime(55, now + duration);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(big ? 0.26 : 0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        noise.start(now);
+      } catch (e) {}
+    }
+  }
+
+  const audio = new RetroAudioEngine();
+
+  // Start menu music on first user gesture
+  function ensureAudioStarted() {
+    audio.init();
+    if (gameState === 'TITLE' && audio.currentTrack === 'NONE') {
+      audio.setMusicTrack('MENU');
+    }
+  }
+  window.addEventListener('pointerdown', ensureAudioStarted, { once: true });
+  window.addEventListener('keydown', ensureAudioStarted, { once: true });
+
+  muteBtn.addEventListener('click', () => {
+    audio.init();
+    audio.toggleMute();
+  });
+
+  // =========================================================================
+  // 3. FIVE PROGRESSIVE VIRUS STAGES
+  // =========================================================================
+  const STAGES = [
+    {
+      num: 1,
+      name: 'Melissa',
+      hp: 260,
+      moveSpeed: 75,
+      patternInterval: 1.0,
+      bulletSpeed: 150,
+      indestructibleSpeed: 175,
+      indestructibleCount: 1,
+      patternType: 'stage1'
+    },
+    {
+      num: 2,
+      name: 'ILOVEYOU',
+      hp: 380,
+      moveSpeed: 95,
+      patternInterval: 0.82,
+      bulletSpeed: 170,
+      indestructibleSpeed: 195,
+      indestructibleCount: 2,
+      patternType: 'stage2'
+    },
+    {
+      num: 3,
+      name: 'Zeus',
+      hp: 550,
+      moveSpeed: 112,
+      patternInterval: 0.22,
+      bulletSpeed: 185,
+      indestructibleSpeed: 215,
+      indestructibleCount: 3,
+      patternType: 'stage3'
+    },
+    {
+      num: 4,
+      name: 'WannaCry',
+      hp: 760,
+      moveSpeed: 126,
+      patternInterval: 0.16,
+      bulletSpeed: 202,
+      indestructibleSpeed: 235,
+      indestructibleCount: 4,
+      patternType: 'stage4'
+    },
+    {
+      num: 5,
+      name: 'NotPetya',
+      hp: 1080,
+      moveSpeed: 140,
+      patternInterval: 0.105,
+      bulletSpeed: 218,
+      indestructibleSpeed: 252,
+      indestructibleCount: 6,
+      patternType: 'stage5'
+    }
+  ];
+
+  // =========================================================================
+  // 4. GAME STATE & ENTITIES
+  // =========================================================================
+  let gameState = 'TITLE'; // TITLE | STAGE_INTRO | PLAYING | TRANSITION_TO_INTEL | INTEL_PROMPT | VICTORY
+  let currentStageIndex = 0;
+  let deathCount = 0;
+  let intelAiActive = false;
+  let stageIntroTimer = 0;
+  let transitionLocked = false;
+  let screenShake = 0;
+
+  const keys = {};
+  let touchMove = { x: 0, y: 0 };
+  let touchFiring = false;
+
+  window.addEventListener('keydown', (e) => {
+    keys[e.code] = true;
+    if (e.code === 'Space' && (gameState === 'PLAYING' || gameState === 'STAGE_INTRO')) {
+      e.preventDefault();
+    }
+    if (e.code === 'KeyM') {
+      audio.init();
+      audio.toggleMute();
+    }
+  });
+  window.addEventListener('keyup', (e) => {
+    keys[e.code] = false;
+  });
+
+  const player = {
+    x: 0,
+    y: 0,
+    radius: 19,
+    speed: 325,
+    angle: -Math.PI / 2,
+    fireCooldown: 0,
+    fireRate: 0.11,
+    invulnTimer: 0
+  };
+
+  let helpers = [];
+  const HELPER_COUNT = 6;
+  const HELPER_ORBIT_RADIUS = 58;
+  let helperOrbitAngle = 0;
+
+  const boss = {
+    x: 0,
+    y: 0,
+    vx: 80,
+    vy: 60,
+    width: 190,
+    height: 66,
+    hp: 260,
+    maxHp: 260,
+    name: 'Melissa',
+    patternTimer: 0,
+    indestructibleTimer: 0,
+    spiralAngle: 0,
+    spiralAngle2: Math.PI,
+    hitFlash: 0
+  };
+
+  let playerBullets = [];
+  let enemyBullets = [];
+  let particles = [];
+  let backgroundStars = [];
+
+  function initStars() {
+    backgroundStars = [];
+    for (let i = 0; i < 70; i++) {
+      backgroundStars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        size: Math.random() * 1.8 + 0.6,
+        alpha: Math.random() * 0.35 + 0.08
+      });
+    }
+  }
+  initStars();
+
+  function setupHelpers() {
+    helpers = [];
+    if (!intelAiActive) return;
+    for (let i = 0; i < HELPER_COUNT; i++) {
+      helpers.push({
+        index: i,
+        alive: true,
+        respawnTimer: 0,
+        radius: 13.5,
+        x: player.x,
+        y: player.y
+      });
+    }
+  }
+
+  function updateHud() {
+    const st = STAGES[currentStageIndex];
+    hudStage.textContent = `STAGE ${st.num}: ${st.name}`;
+    hudDeaths.textContent = `DEATHS: ${deathCount}`;
+    hudAiStatus.textContent = intelAiActive ? 'INTEL AI: ACTIVE (6 UNITS)' : 'INTEL AI: STANDBY';
+    const pct = Math.max(0, Math.ceil((boss.hp / boss.maxHp) * 100));
+    hudBossHp.textContent = `VIRUS INTEGRITY: ${pct}%`;
+  }
+
+  function startStage(index) {
+    currentStageIndex = index;
+    const st = STAGES[currentStageIndex];
+
+    player.x = W * 0.5;
+    player.y = H * 0.78;
+    player.fireCooldown = 0;
+    player.invulnTimer = 1.25;
+
+    boss.name = st.name;
+    boss.maxHp = st.hp;
+    boss.hp = st.hp;
+    boss.x = W * 0.5;
+    boss.y = H * 0.22;
+
+    const dirAngle = (Math.random() * 0.6 + 0.2) * Math.PI * (Math.random() < 0.5 ? 1 : -1);
+    boss.vx = Math.cos(dirAngle) * st.moveSpeed;
+    boss.vy = Math.sin(dirAngle) * st.moveSpeed;
+    boss.patternTimer = 0.4;
+    boss.indestructibleTimer = 0.5;
+    boss.spiralAngle = 0;
+    boss.spiralAngle2 = Math.PI;
+    boss.hitFlash = 0;
+
+    ctx.font = 'bold 28px "Courier New", monospace';
+    const textW = ctx.measureText(st.name.toUpperCase()).width;
+    boss.width = Math.max(175, textW + 58);
+    boss.height = 66;
+
+    playerBullets = [];
+    enemyBullets = [];
+    particles = [];
+    setupHelpers();
+    updateHud();
+
+    // Display "STAGE X <Virus Name>" and "START"
+    stageBannerTitle.textContent = `STAGE ${st.num} ${st.name}`;
+    stageBanner.classList.add('visible');
+    gameState = 'STAGE_INTRO';
+    stageIntroTimer = 1.65;
+
+    // Start energetic retro battle music
+    audio.setMusicTrack('BATTLE');
+  }
+
+  function spawnParticles(x, y, color, count = 12, speed = 180) {
+    for (let i = 0; i < count; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const s = Math.random() * speed + 40;
+      particles.push({
+        x,
+        y,
+        vx: Math.cos(a) * s,
+        vy: Math.sin(a) * s,
+        life: 0.35 + Math.random() * 0.25,
+        maxLife: 0.6,
+        size: Math.random() * 3.8 + 2,
+        color
+      });
+    }
+  }
+
+  function firePlayerAndHelpers() {
+    const bulletSpeed = 760;
+    const angleToBoss = Math.atan2(boss.y - player.y, boss.x - player.x);
+
+    // Large, bright neon-white player bullet
+    playerBullets.push({
+      x: player.x + Math.cos(angleToBoss) * 24,
+      y: player.y + Math.sin(angleToBoss) * 24,
+      vx: Math.cos(angleToBoss) * bulletSpeed,
+      vy: Math.sin(angleToBoss) * bulletSpeed,
+      radius: 8.5,
+      damage: 10
+    });
+
+    // 6 revolving Intel AI helper units fire alongside the player
+    if (intelAiActive) {
+      for (const h of helpers) {
+        if (!h.alive) continue;
+        const hAngle = Math.atan2(boss.y - h.y, boss.x - h.x);
+        playerBullets.push({
+          x: h.x + Math.cos(hAngle) * 16,
+          y: h.y + Math.sin(hAngle) * 16,
+          vx: Math.cos(hAngle) * bulletSpeed,
+          vy: Math.sin(hAngle) * bulletSpeed,
+          radius: 7,
+          damage: 6
+        });
+      }
+    }
+
+    audio.playPop();
+  }
+
+  function spawnEnemyBullet(x, y, angle, speed, indestructible = false, radius = null) {
+    enemyBullets.push({
+      x,
+      y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      radius: radius || (indestructible ? 12.5 : 11.5),
+      indestructible
+    });
+  }
+
+  function updateBossAttacks(dt) {
+    const st = STAGES[currentStageIndex];
+    // When refusing Intel AI on Stage 5, enemy assault is even more relentless
+    const soloBoost = (!intelAiActive && deathCount >= 3 && st.num === 5) ? 1.4 : 1.0;
+
+    // 1. Indestructible attack set released every 0.5 seconds
+    boss.indestructibleTimer -= dt;
+    if (boss.indestructibleTimer <= 0) {
+      boss.indestructibleTimer = 0.5;
+      const aimAngle = Math.atan2(player.y - boss.y, player.x - boss.x);
+      const count = st.indestructibleCount;
+
+      if (count === 1) {
+        spawnEnemyBullet(boss.x, boss.y, aimAngle, st.indestructibleSpeed, true, 12.5);
+      } else {
+        const spread = st.num >= 5 ? Math.PI * 2 : 0.68;
+        for (let i = 0; i < count; i++) {
+          let a;
+          if (st.num >= 5) {
+            a = boss.spiralAngle + (i / count) * Math.PI * 2;
+          } else {
+            const offset = ((i / (count - 1)) - 0.5) * spread;
+            a = aimAngle + offset;
+          }
+          spawnEnemyBullet(boss.x, boss.y, a, st.indestructibleSpeed, true, 12.5);
+        }
+      }
+    }
+
+    // 2. Destructible neon-red pattern attacks
+    boss.patternTimer -= dt * soloBoost;
+    if (boss.patternTimer <= 0) {
+      boss.patternTimer = st.patternInterval;
+      const aimAngle = Math.atan2(player.y - boss.y, player.x - boss.x);
+
+      if (st.patternType === 'stage1') {
+        // Stage 1 (Melissa): Wide readable 5-way fan with plenty of space to dodge
+        const ways = 5;
+        const fan = 0.95;
+        for (let i = 0; i < ways; i++) {
+          const a = aimAngle + ((i / (ways - 1)) - 0.5) * fan;
+          spawnEnemyBullet(boss.x, boss.y, a, st.bulletSpeed, false, 11.5);
+        }
+      } else if (st.patternType === 'stage2') {
+        // Stage 2 (ILOVEYOU): Wider 7-way multi-arc spread
+        const ways = 7;
+        const fan = 1.38;
+        for (let i = 0; i < ways; i++) {
+          const a = aimAngle + ((i / (ways - 1)) - 0.5) * fan;
+          spawnEnemyBullet(boss.x, boss.y, a, st.bulletSpeed, false, 11.5);
+        }
+      } else if (st.patternType === 'stage3') {
+        // Stage 3 (Zeus): Rotating 4-arm geometric spiral
+        const arms = 4;
+        for (let i = 0; i < arms; i++) {
+          const a = boss.spiralAngle + (i * Math.PI * 2) / arms;
+          spawnEnemyBullet(boss.x, boss.y, a, st.bulletSpeed, false, 11.5);
+        }
+        boss.spiralAngle += 0.34;
+      } else if (st.patternType === 'stage4') {
+        // Stage 4 (WannaCry): Counter-rotating double spiral
+        const arms = 5;
+        for (let i = 0; i < arms; i++) {
+          const a1 = boss.spiralAngle + (i * Math.PI * 2) / arms;
+          const a2 = boss.spiralAngle2 + (i * Math.PI * 2) / arms;
+          spawnEnemyBullet(boss.x, boss.y, a1, st.bulletSpeed, false, 11.5);
+          spawnEnemyBullet(boss.x, boss.y, a2, st.bulletSpeed * 0.85, false, 11.5);
+        }
+        boss.spiralAngle += 0.28;
+        boss.spiralAngle2 -= 0.24;
+      } else if (st.patternType === 'stage5') {
+        // Stage 5 (NotPetya): NieR: Automata Ending E inspired screen-filling bullet-hell web
+        const arms = intelAiActive ? 7 : 9;
+        for (let i = 0; i < arms; i++) {
+          const a1 = boss.spiralAngle + (i * Math.PI * 2) / arms;
+          const a2 = -boss.spiralAngle * 0.85 + (i * Math.PI * 2) / arms;
+          spawnEnemyBullet(boss.x, boss.y, a1, st.bulletSpeed, false, 11.5);
+          spawnEnemyBullet(boss.x, boss.y, a2, st.bulletSpeed * 0.78, false, 11.5);
+        }
+        boss.spiralAngle += 0.23;
+      }
+    }
+  }
+
+  function handlePlayerDeath() {
+    if (transitionLocked) return;
+    deathCount++;
+    updateHud();
+    screenShake = 16;
+
+    // Play explosion + downbeat retro defeat jingle
+    audio.playExplosion(true);
+    audio.playDefeatJingle();
+    spawnParticles(player.x, player.y, '#ffffff', 42, 300);
+
+    // From 3rd death onward (deathCount > 2), fade transition into Intel AI Assistance prompt
+    if (deathCount > 2) {
+      transitionLocked = true;
+      gameState = 'TRANSITION_TO_INTEL';
+      setTimeout(() => {
+        intelScreen.classList.add('active');
+        audio.setMusicTrack('INTEL_HEROIC');
+        transitionLocked = false;
+      }, 650);
+    } else {
+      // Restart current stage after defeat jingle
+      transitionLocked = true;
+      setTimeout(() => {
+        startStage(currentStageIndex);
+        transitionLocked = false;
+      }, 1150);
+    }
+  }
+
+  function handleStageClear() {
+    if (transitionLocked) return;
+    screenShake = 20;
+
+    // Play explosion + upbeat celebratory retro fanfare jingle
+    audio.playExplosion(true);
+    audio.playStageClearJingle();
+    spawnParticles(boss.x, boss.y, '#ff2a2a', 55, 340);
+    spawnParticles(boss.x, boss.y, '#ffffff', 35, 260);
+    enemyBullets = [];
+    playerBullets = [];
+
+    if (currentStageIndex < STAGES.length - 1) {
+      transitionLocked = true;
+      setTimeout(() => {
+        startStage(currentStageIndex + 1);
+        transitionLocked = false;
+      }, 1250);
+    } else {
+      // Final Stage (NotPetya) defeated -> Trigger 2-step Fade Victory Sequence
+      transitionLocked = true;
+      gameState = 'VICTORY';
+      setTimeout(() => {
+        victoryScreen1.classList.add('active');
+        audio.setMusicTrack('INTEL_HEROIC');
+        setTimeout(() => {
+          victoryScreen1.classList.remove('active');
+          setTimeout(() => {
+            victoryScreen2.classList.add('active');
+            transitionLocked = false;
+          }, 900);
+        }, 3300);
+      }, 950);
+    }
+  }
+
+  function update(dt) {
+    if (screenShake > 0) {
+      screenShake = Math.max(0, screenShake - dt * 42);
+    }
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt;
+      if (p.life <= 0) {
+        particles.splice(i, 1);
+      }
+    }
+
+    if (gameState === 'STAGE_INTRO') {
+      stageIntroTimer -= dt;
+      updatePlayerMovement(dt);
+      if (stageIntroTimer <= 0) {
+        stageBanner.classList.remove('visible');
+        gameState = 'PLAYING';
+      }
+      return;
+    }
+
+    if (gameState !== 'PLAYING') return;
+
+    updatePlayerMovement(dt);
+
+    // Fire when Spacebar or Mobile Fire button is held
+    if (player.fireCooldown > 0) player.fireCooldown -= dt;
+    if ((keys['Space'] || touchFiring) && player.fireCooldown <= 0) {
+      firePlayerAndHelpers();
+      player.fireCooldown = player.fireRate;
+    }
+
+    // Boss slow drifting movement around upper/mid screen
+    boss.x += boss.vx * dt;
+    boss.y += boss.vy * dt;
+    if (boss.hitFlash > 0) boss.hitFlash -= dt;
+
+    const padX = boss.width * 0.5 + 36;
+    const padY = boss.height * 0.5 + 64;
+    const maxY = H * 0.60;
+    if (boss.x < padX) {
+      boss.x = padX;
+      boss.vx = Math.abs(boss.vx);
+    } else if (boss.x > W - padX) {
+      boss.x = W - padX;
+      boss.vx = -Math.abs(boss.vx);
+    }
+    if (boss.y < padY) {
+      boss.y = padY;
+      boss.vy = Math.abs(boss.vy);
+    } else if (boss.y > maxY) {
+      boss.y = maxY;
+      boss.vy = -Math.abs(boss.vy);
+    }
+
+    const st = STAGES[currentStageIndex];
+    const targetSpeed = st.moveSpeed;
+    const curSpeed = Math.hypot(boss.vx, boss.vy) || 1;
+    boss.vx = (boss.vx / curSpeed) * targetSpeed;
+    boss.vy = (boss.vy / curSpeed) * targetSpeed;
+
+    updateBossAttacks(dt);
+
+    // Update Player Bullets
+    for (let i = playerBullets.length - 1; i >= 0; i--) {
+      const b = playerBullets[i];
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+
+      if (b.x < -50 || b.x > W + 50 || b.y < -50 || b.y > H + 50) {
+        playerBullets.splice(i, 1);
+        continue;
+      }
+
+      // Nullify destructible neon-red enemy bullets on contact
+      let bulletConsumed = false;
+      for (let j = enemyBullets.length - 1; j >= 0; j--) {
+        const eb = enemyBullets[j];
+        if (eb.indestructible) continue; // Indestructible orbs cannot be destroyed
+        const dist = Math.hypot(b.x - eb.x, b.y - eb.y);
+        if (dist < b.radius + eb.radius) {
+          spawnParticles((b.x + eb.x) * 0.5, (b.y + eb.y) * 0.5, '#ff3333', 7, 130);
+          audio.playNullify();
+          enemyBullets.splice(j, 1);
+          playerBullets.splice(i, 1);
+          bulletConsumed = true;
+          break;
+        }
+      }
+      if (bulletConsumed) continue;
+
+      // Damage Boss Box
+      const halfW = boss.width * 0.5;
+      const halfH = boss.height * 0.5;
+      if (
+        b.x + b.radius > boss.x - halfW &&
+        b.x - b.radius < boss.x + halfW &&
+        b.y + b.radius > boss.y - halfH &&
+        b.y - b.radius < boss.y + halfH
+      ) {
+        boss.hp -= b.damage;
+        boss.hitFlash = 0.08;
+        audio.playLaserHit();
+        spawnParticles(b.x, b.y, '#ffffff', 5, 140);
+        playerBullets.splice(i, 1);
+        updateHud();
+
+        if (boss.hp <= 0) {
+          boss.hp = 0;
+          updateHud();
+          handleStageClear();
+          return;
+        }
+      }
+    }
+
+    // Update Enemy Bullets & Collisions
+    for (let i = enemyBullets.length - 1; i >= 0; i--) {
+      const eb = enemyBullets[i];
+      eb.x += eb.vx * dt;
+      eb.y += eb.vy * dt;
+
+      if (eb.x < -80 || eb.x > W + 80 || eb.y < -80 || eb.y > H + 80) {
+        enemyBullets.splice(i, 1);
+        continue;
+      }
+
+      // Check collision with active Intel AI orbital helpers (absorb hits for player)
+      let hitHelper = false;
+      if (intelAiActive) {
+        for (const h of helpers) {
+          if (!h.alive) continue;
+          const distH = Math.hypot(eb.x - h.x, eb.y - h.y);
+          if (distH < eb.radius + h.radius) {
+            h.alive = false;
+            h.respawnTimer = 0.5; // Respawns after 0.5 seconds
+            audio.playExplosion(false);
+            spawnParticles(h.x, h.y, '#ffffff', 12, 175);
+            enemyBullets.splice(i, 1);
+            hitHelper = true;
+            break;
+          }
+        }
+      }
+      if (hitHelper) continue;
+
+      // Check collision with Player core hitbox
+      if (player.invulnTimer <= 0) {
+        const distP = Math.hypot(eb.x - player.x, eb.y - player.y);
+        if (distP < eb.radius + player.radius * 0.7) {
+          enemyBullets.splice(i, 1);
+          handlePlayerDeath();
+          return;
+        }
+      }
+    }
+
+    // Direct collision with Boss Box
+    if (player.invulnTimer <= 0) {
+      const halfW = boss.width * 0.5;
+      const halfH = boss.height * 0.5;
+      if (
+        player.x + player.radius * 0.7 > boss.x - halfW &&
+        player.x - player.radius * 0.7 < boss.x + halfW &&
+        player.y + player.radius * 0.7 > boss.y - halfH &&
+        player.y - player.radius * 0.7 < boss.y + halfH
+      ) {
+        handlePlayerDeath();
+        return;
+      }
+    }
+  }
+
+  function updatePlayerMovement(dt) {
+    if (player.invulnTimer > 0) player.invulnTimer -= dt;
+
+    let dx = touchMove.x;
+    let dy = touchMove.y;
+    if (keys['KeyW'] || keys['ArrowUp']) dy -= 1;
+    if (keys['KeyS'] || keys['ArrowDown']) dy += 1;
+    if (keys['KeyA'] || keys['ArrowLeft']) dx -= 1;
+    if (keys['KeyD'] || keys['ArrowRight']) dx += 1;
+
+    if (dx !== 0 || dy !== 0) {
+      const len = Math.hypot(dx, dy);
+      if (len > 1) {
+        dx /= len;
+        dy /= len;
+      }
+      player.x += dx * player.speed * dt;
+      player.y += dy * player.speed * dt;
+    }
+
+    const margin = 30;
+    player.x = Math.max(margin, Math.min(W - margin, player.x));
+    player.y = Math.max(margin + 46, Math.min(H - margin, player.y));
+
+    // Lock player arrow orientation toward the virus enemy box at all times
+    player.angle = Math.atan2(boss.y - player.y, boss.x - player.x);
+
+    // Revolve 6 Intel AI helper units around the player
+    if (intelAiActive) {
+      helperOrbitAngle += 2.65 * dt;
+      for (const h of helpers) {
+        if (!h.alive) {
+          h.respawnTimer -= dt;
+          if (h.respawnTimer <= 0) {
+            h.alive = true;
+            spawnParticles(h.x, h.y, '#ffffff', 8, 95);
+          }
+        }
+        const slotAngle = helperOrbitAngle + (h.index * Math.PI * 2) / HELPER_COUNT;
+        h.x = player.x + Math.cos(slotAngle) * HELPER_ORBIT_RADIUS;
+        h.y = player.y + Math.sin(slotAngle) * HELPER_ORBIT_RADIUS;
+      }
+    }
+  }
+
+  function drawArrowShip(x, y, angle, scale, alpha = 1) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.globalAlpha = alpha;
+
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = '#ffffff';
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.5;
+
+    ctx.beginPath();
+    ctx.moveTo(23 * scale, 0);
+    ctx.lineTo(-16 * scale, -14 * scale);
+    ctx.lineTo(-9 * scale, 0);
+    ctx.lineTo(-16 * scale, 14 * scale);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function draw() {
+    ctx.save();
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, W, H);
+
+    if (screenShake > 0) {
+      ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
+    }
+
+    // Subtle starfield
+    for (const s of backgroundStars) {
+      ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+      ctx.fillRect(s.x, s.y, s.size, s.size);
+    }
+
+    if (gameState === 'TITLE') {
+      ctx.restore();
+      return;
+    }
+
+    // Subtle target lock line from player to virus
+    if (gameState === 'PLAYING' || gameState === 'STAGE_INTRO') {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.setLineDash([6, 8]);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(player.x, player.y);
+      ctx.lineTo(boss.x, boss.y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Draw Bright Neon-White Player Bullets
+    ctx.save();
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = '#ffffff';
+    ctx.fillStyle = '#ffffff';
+    for (const b of playerBullets) {
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // Draw Enemy Bullets
+    for (const eb of enemyBullets) {
+      ctx.save();
+      if (eb.indestructible) {
+        // Indestructible 0.5s attack: Dark core with thick glowing neon-red rim
+        ctx.shadowBlur = 22;
+        ctx.shadowColor = '#ff1a1a';
+        ctx.fillStyle = '#0c0000';
+        ctx.strokeStyle = '#ff2222';
+        ctx.lineWidth = 4.2;
+        ctx.beginPath();
+        ctx.arc(eb.x, eb.y, eb.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ff2222';
+        ctx.beginPath();
+        ctx.arc(eb.x, eb.y, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Destructible attack: Large bright neon-red glowing orb
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#ff1e1e';
+        ctx.fillStyle = '#ff2424';
+        ctx.beginPath();
+        ctx.arc(eb.x, eb.y, eb.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ff9999';
+        ctx.beginPath();
+        ctx.arc(eb.x, eb.y, eb.radius * 0.42, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // Draw Single Enemy Virus Box
+    if (boss.hp > 0) {
+      ctx.save();
+      const halfW = boss.width * 0.5;
+      const halfH = boss.height * 0.5;
+
+      ctx.shadowBlur = boss.hitFlash > 0 ? 30 : 18;
+      ctx.shadowColor = boss.hitFlash > 0 ? '#ffffff' : '#ff2424';
+      ctx.fillStyle = boss.hitFlash > 0 ? '#2c2c2c' : '#050505';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 3;
+
+      ctx.fillRect(boss.x - halfW, boss.y - halfH, boss.width, boss.height);
+      ctx.strokeRect(boss.x - halfW, boss.y - halfH, boss.width, boss.height);
+
+      // Virus Name inside the box
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#ffffff';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 26px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(boss.name, boss.x, boss.y - 4);
+
+      // Integrity bar inside box
+      const hpRatio = Math.max(0, boss.hp / boss.maxHp);
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.fillRect(boss.x - halfW + 12, boss.y + halfH - 11, boss.width - 24, 4);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(boss.x - halfW + 12, boss.y + halfH - 11, (boss.width - 24) * hpRatio, 4);
+
+      ctx.restore();
+    }
+
+    // Draw Player Arrow & 6 Revolving Intel AI Assistors
+    if (gameState === 'PLAYING' || gameState === 'STAGE_INTRO') {
+      const blinkAlpha =
+        player.invulnTimer > 0 ? (Math.floor(player.invulnTimer * 16) % 2 === 0 ? 0.35 : 1) : 1;
+      drawArrowShip(player.x, player.y, player.angle, 1.2, blinkAlpha);
+
+      if (intelAiActive) {
+        for (const h of helpers) {
+          if (!h.alive) continue;
+          const hAngle = Math.atan2(boss.y - h.y, boss.x - h.x);
+          drawArrowShip(h.x, h.y, hAngle, 0.74, 0.95);
+        }
+      }
+    }
+
+    // Draw Particles
+    for (const p of particles) {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+      ctx.fillStyle = p.color;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = p.color;
+      ctx.fillRect(p.x - p.size * 0.5, p.y - p.size * 0.5, p.size, p.size);
+      ctx.restore();
+    }
+
+    ctx.restore();
+  }
+
+  let lastTime = performance.now();
+  function loop(now) {
+    const dt = Math.min(0.05, (now - lastTime) / 1000);
+    lastTime = now;
+
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  // =========================================================================
+  // 5. UI BUTTON HANDLERS & TOUCH CONTROLS
+  // =========================================================================
+  startBtn.addEventListener('click', () => {
+    audio.init();
+    titleScreen.classList.remove('active');
+    deathCount = 0;
+    intelAiActive = false;
+    startStage(0);
+  });
+
+  intelYesBtn.addEventListener('click', () => {
+    audio.init();
+    intelAiActive = true;
+    intelScreen.classList.remove('active');
+    setTimeout(() => {
+      startStage(currentStageIndex);
+    }, 550);
+  });
+
+  intelNoBtn.addEventListener('click', () => {
+    audio.init();
+    intelAiActive = false;
+    intelScreen.classList.remove('active');
+    setTimeout(() => {
+      startStage(currentStageIndex);
+    }, 550);
+  });
+
+  replayBtn.addEventListener('click', () => {
+    audio.init();
+    victoryScreen2.classList.remove('active');
+    deathCount = 0;
+    intelAiActive = false;
+    setTimeout(() => {
+      startStage(0);
+    }, 550);
+  });
+
+  // Mobile Touch Joystick & Fire Button
+  const joyZone = document.getElementById('joyZone');
+  const joyKnob = document.getElementById('joyKnob');
+  const touchFireBtn = document.getElementById('touchFireBtn');
+
+  function handleJoy(e) {
+    e.preventDefault();
+    audio.init();
+    const t = e.touches[0];
+    const rect = joyZone.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const maxR = rect.width / 2 - 14;
+    let dx = t.clientX - cx;
+    let dy = t.clientY - cy;
+    const dist = Math.hypot(dx, dy);
+    if (dist > maxR) {
+      dx = (dx / dist) * maxR;
+      dy = (dy / dist) * maxR;
+    }
+    joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+    touchMove.x = dx / maxR;
+    touchMove.y = dy / maxR;
+  }
+
+  joyZone.addEventListener('touchstart', handleJoy, { passive: false });
+  joyZone.addEventListener('touchmove', handleJoy, { passive: false });
+  joyZone.addEventListener('touchend', () => {
+    touchMove.x = 0;
+    touchMove.y = 0;
+    joyKnob.style.transform = 'translate(0px, 0px)';
+  });
+
+  touchFireBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    audio.init();
+    touchFiring = true;
+  }, { passive: false });
+
+  touchFireBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    touchFiring = false;
+  }, { passive: false });
+})();
+</script>
+
+</body></html>
